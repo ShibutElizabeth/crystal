@@ -1,5 +1,4 @@
 import {Canvas, useFrame} from "@react-three/fiber";
-import { useState } from "react";
 import {
     Float,
     Lightformer,
@@ -18,16 +17,16 @@ export const App = () => {
   const group = useRef();
   const bRef = useRef();
   const cRef = useRef();
-
-  const [rotationY, setRotationY] = useState(0);
-  const [transition, setTransition] = useState(0);
+  const mref = useRef();
 
 
 
   function Rig() {
     let k = 2;
     let time = 0;
+    
     useFrame((state, delta) => {
+      // console.log(mref.current)
       easing.damp3(
         state.camera.position,
         [Math.sin(-state.pointer.x) * 5, state.pointer.y * 3.5, 15 + Math.cos(state.pointer.x) * 10],
@@ -37,24 +36,21 @@ export const App = () => {
       state.camera.lookAt(0, 0, 0);
       if(cRef.current && bRef.current){
         const epsilon = 0.01; // Допуск для точности
-        group.current.rotation.y += 0.02;
+        group.current.rotation.y -= 0.02;
+        crystalRef.current.rotation.y -= 0.006;
+        crystalRef.current.rotation.x += 0.006;
         const rotationY = group.current.rotation.y % (Math.PI * 2);
 
-        // bRef.current.position.y = 0.7* Math.cos(time * k)
-        group.current.position.y = 0.7 * Math.cos(time * k) -0.5;
+        group.current.position.y = 0.5 * (Math.cos(time * k));
         time += delta;
 
         // Первый объект (виден от 0 до π/2 и от 3π/2 до 2π)
-        const isVisibleFirst = (rotationY <= Math.PI / 2 + epsilon) || (rotationY <= Math.PI / 2 - epsilon) 
-        || (rotationY > 3 * Math.PI / 2 + epsilon) || (rotationY > 3 * Math.PI / 2 - epsilon);
-
-        // Второй объект (виден от π/2 до 3π/2)
-        const isVisibleSecond = ((rotationY >= Math.PI / 2) && (rotationY <= 3 * Math.PI / 2)); //|| ((rotationY >= Math.PI / 2) && (rotationY <= 3 * Math.PI / 2));
-
+        const isVisibleFirst = (Math.abs(rotationY) + epsilon < Math.PI / 2) || (Math.abs(rotationY) - epsilon < Math.PI / 2) 
+          || (Math.abs(rotationY) + epsilon > 3 * Math.PI / 2) || (Math.abs(rotationY) - epsilon > 3 * Math.PI / 2);
 
         // Управление видимостью
         bRef.current.visible = isVisibleFirst;
-        cRef.current.visible = isVisibleSecond;
+        cRef.current.visible = !isVisibleFirst;
       }
     })
   }
@@ -73,9 +69,9 @@ export const App = () => {
         }}>
         <color attach="background" args={["#e0e0e0"]}/>
         <spotLight position={[20, 20, 10]} penumbra={1} castShadow angle={0.2}/>
-        <Status position={[0, 0, -10]}/>
+        {/* <Status position={[0, 0, -10]}/> */}
         <Float floatIntensity={2}>
-          <Crystal crystalRef={crystalRef} groupRef={group} bRef={bRef} cRef={cRef} transition={transition}/>
+          <Crystal crystalRef={crystalRef} groupRef={group} bRef={bRef} cRef={cRef} mref={mref}/>
         </Float>
         <ContactShadows
             scale={100}
@@ -87,6 +83,11 @@ export const App = () => {
             <Lightformer
                 intensity={10}
                 position={[10, 15, 0]}
+                scale={[10, 50, 1]}
+                onUpdate={(self) => self.lookAt(0, 0, 0)}/>
+              <Lightformer
+                intensity={10}
+                position={[-10, 15, 0]}
                 scale={[10, 50, 1]}
                 onUpdate={(self) => self.lookAt(0, 0, 0)}/>
             <Lightformer
@@ -113,6 +114,13 @@ export const App = () => {
                 scale={[10, 50, 1]}
                 color={"rgb(23, 0, 92)"}
                 onUpdate={(self) => self.lookAt(0, 0, 0)}/>
+              {/* <Lightformer
+                ref={lightPink}
+                intensity={10}
+                scale={[10, 50, 1]}
+                position={[-4, 5, 0]}
+                color={"rgb(255, 0, 191)"}
+                onUpdate={(self) => self.lookAt(0, 0, 0)}/> */}
         </Environment>
         <Rig/>
       </Canvas> 
