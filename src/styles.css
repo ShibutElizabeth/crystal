@@ -13,8 +13,12 @@ body,
   padding: 0;
 }
 
+/* #root{
+  background: radial-gradient(circle, rgba(1,1,1,1) 52%, rgba(255,255,255,0) 100%);
+} */
+
 body {
-  background: #e0e0e0;
+  /* background: radial-gradient(circle, rgba(255,255,255,0.7) 52%, rgba(1,1,1,1)  100%); */
   font-family: "Inter", sans-serif;
 }
 
@@ -29,20 +33,4 @@ a {
 a,
 a:visited {
   color: black;
-}
-
-.nav {
-  position: absolute;
-  right: 50px;
-  top: 50px;
-}
-
-.stat {
-  position: absolute;
-  left: 50px;
-  top: 50px;
-}
-
-#webpack-dev-server-client-overlay-div{
-  display: none !important;
 }
